@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Create Lead</title>
+
+  <script src="https://js.zohostatic.com/crm/v2.0/sdk.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Segoe UI", Arial;
+      background: #f4f6f9;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      max-width: 420px;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.1);
+    }
+
+    h3 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+
+    label {
+      font-size: 13px;
+      color: #374151;
+      display: block;
+      margin-top: 12px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      border-radius: 8px;
+      border: 1px solid #d1d5db;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 16px;
+      width: 100%;
+      padding: 12px;
+      background: #007bff;
+      border: none;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .msg {
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .success {
+      color: #16a34a;
+    }
+
+    .error {
+      color: #dc2626;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="card">
+    <h3>Create New Lead</h3>
+
+    <label>First Name</label>
+    <input id="firstName" placeholder="John">
+
+    <label>Last Name *</label>
+    <input id="lastName" placeholder="Doe">
+
+    <label>Email</label>
+    <input id="email" type="email" placeholder="john@example.com">
+
+    <label>Phone</label>
+    <input id="phone" placeholder="+91 98765 43210">
+
+    <button onclick="createLead()">Create Lead</button>
+
+    <div id="message" class="msg"></div>
+  </div>
+
+  <script>
+    ZOHO.embeddedApp.init();
+
+    function createLead() {
+      const data = {
+        First_Name: document.getElementById("firstName").value,
+        Last_Name: document.getElementById("lastName").value,
+        Email: document.getElementById("email").value,
+        Phone: document.getElementById("phone").value
+      };
+
+      if (!data.Last_Name) {
+        showMsg("Last Name is required", "error");
+        return;
+      }
+
+      ZOHO.CRM.API.insertRecord({
+        Entity: "Leads",
+        APIData: data,
+        Trigger: ["workflow"]
+      }).then(function (response) {
+        if (response.data[0].status === "success") {
+          showMsg("Lead created successfully 🎉", "success");
+          clearForm();
+        } else {
+          showMsg("Failed to create lead", "error");
+        }
+      }).catch(function (err) {
+        console.error(err);
+        showMsg("Error creating lead", "error");
+      });
+    }
+
+    function showMsg(text, type) {
+      const msg = document.getElementById("message");
+      msg.innerText = text;
+      msg.className = "msg " + type;
+    }
+
+    function clearForm() {
+      document.getElementById("firstName").value = "";
+      document.getElementById("lastName").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("phone").value = "";
+    }
+  </script>
+
+</body>
+</html>
